@@ -105,60 +105,144 @@ int main(int argc, char *argv[])
     Finalizacao= new float[C];
     Cf = new float[C];
     HH_total = new float[C];
-    Demanda = new float[C]
+    Demanda = new float[C];
 
-    // Por especialidade continue....
-    NomeCultura = new char*[C];
-    for(int c = 0 ; c < C; c++)
+    // Por especialidade
+    NomeEspec = new char*[E];
+    for(int e = 0 ; e < E; e++)
     {
-      NomeCultura[c] = new char[51];
+      NomeEspec[e] = new char[51];
     }
 
-    AMax = new float[C];
-    ConsAgua = new float[C];
-    Lucro = new float[C];
+    Mec_leve = new char*[E];
+    for(int e = 0 ; e < E; e++)
+    {
+      Mec_leve[e] = new char[51];
+    }
+
+    Insp_leve = new char*[E];
+    for(int e = 0 ; e < E; e++)
+    {
+      NomeEspec[e] = new char[51];
+    }
+
+    Mec_medio= new char*[E];
+    for(int e = 0 ; e < E; e++)
+    {
+      Mec_medio[e] = new char[51];
+    }
+
+    Insp_medio= new char*[E];
+    for(int e = 0 ; e < E; e++)
+    {
+      Insp_medio[e] = new char[51];
+    }
+
+    Mec_pesado = new char*[E];
+    for(int e = 0 ; e < E; e++)
+    {
+      Mec_pesado[e] = new char[51];
+    }
+
+    Insp_pesado= new char*[E];
+    for(int e = 0 ; e < E; e++)
+    {
+      Insp_pesado[e] = new char[51];
+    }
+
+    End_esp= new char*[E];
+    for(int e = 0 ; e < E; e++)
+    {
+      End_esp[e] = new char[51];
+    }
+
+    Limpeza_esp = new char*[E];
+    for(int e = 0 ; e < E; e++)
+    {
+      Limpeza_esp[e] = new char[51];
+    }
+
+    Protecao_esp = new char*[E];
+    for(int e = 0 ; e < E; e++)
+    {
+      Protecao_esp[e] = new char[51];
+    }
+
+    Pintura_esp = new char*[E];
+    for(int e = 0 ; e < E; e++)
+    {
+      Pintura_esp[e] = new char[51];
+    }
 
 
     // Após a declaração dos tamanhos dos dados de entrada, realizando a leitura
-    // por fazenda
-    for(int f= 0; f < F; f++)
-    {
-        fscanf(fp, "%s", NomeFazenda[f]);
-        fscanf(fp, "%f", &Area[f]);
-        fscanf(fp, "%f", &Agua[f]);
-    }
-
-    // por cultura
+    // por componente
     for(int c = 0; c < C; c++)
     {
-        fscanf(fp, "%s", NomeCultura[c]);
-        fscanf(fp, "%f", &AMax[c]);
-        fscanf(fp, "%f", &ConsAgua[c]);
-        fscanf(fp, "%f", &Lucro[c]);
+        fscanf(fp, "%s", NomeComponente[c]);
+        fscanf(fp, "%s", NomeServico[c]);
+        fscanf(fp, "%s", NomeCelula[c]);
+
+        fscanf(fp, "%f", &Desmontagem[c]);
+        fscanf(fp, "%f", &Limpeza[c]);
+        fscanf(fp, "%f", &Vdi[c]);
+        fscanf(fp, "%f", &End[c]);
+        fscanf(fp, "%f", &Protecao[c]);
+        fscanf(fp, "%f", &Pintura[c]);
+        fscanf(fp, "%f", &Conf_pecas[c]);
+        fscanf(fp, "%f", &Lib_montagem[c]);
+        fscanf(fp, "%f", &Montagem[c]);
+        fscanf(fp, "%f", &InspecaoFI[c]);
+        fscanf(fp, "%f", &Ensaio[c]);
+        fscanf(fp, "%f", &Montagem_final[c]);
+        fscanf(fp, "%f", &Pintura_final[c]);
+        fscanf(fp, "%f", &Finalizacao[c]);
+        fscanf(fp, "%f", &Cf[c]);
+        fscanf(fp, "%f", &HH_total[c]);
+        fscanf(fp, "%f", &Demanda[c]);
+
+    }
+
+    // por especialidade
+    for(int e = 0; e < E; e++)
+    {
+        fscanf(fp, "%s", NomeEspec[e]);
+        fscanf(fp, "%s", Mec_leve[e]);
+        fscanf(fp, "%s", Insp_leve[e]);
+        fscanf(fp, "%s", Mec_medio[e]);
+        fscanf(fp, "%s", Insp_medio[e]);
+        fscanf(fp, "%s", Mec_pesado[e]);
+        fscanf(fp, "%s", Insp_pesado[e]);
+        fscanf(fp, "%s", Mec_leve[e]);
+        fscanf(fp, "%s", Insp_leve[e]);
+        fscanf(fp, "%s", End_esp[e]);
+        fscanf(fp, "%s", Limpeza_esp[e]);
+        fscanf(fp, "%s", Protecao_esp[e]);
+        fscanf(fp, "%s", Pintura_esp[e]);
     }
 
     // Impressão para Verificação dos dados
 
 
-    printf("Numero de faz: %d\n", F);
-    printf("Numero de cult: %d\n\n", C);
+    printf("Numero de Componentes: %d\n", C);
+    printf("Numero de especialistas: %d\n\n", E);
 
-    printf("Fazendas: \n");
-    for(int f = 0; f < F; f++)
+    printf("Componentes: \n");
+    for(int c = 0; c < C; c++)
     {
-      printf("%s \t %.2f \t %.2f \n", NomeFazenda[f], Area[f], Agua[f]);
+      printf("x%d \t %s \t %s \t %.2f \n",c+1, NomeComponente[c], NomeCelula[c], HH_total[c]);
     }
     printf("\n\n");
 
-    printf("Culturas: \n");
-    for(int c = 0; c < C; c++)
+    printf("Especialistas: \n");
+    for(int e = 0; e < E; e++)
     {
-      printf("%s \t %.2f \t %.2f \t %.2f\n", NomeCultura[c], AMax[c], ConsAgua[c], Lucro[c]);
+      printf("T%d \t %s \t %s \t %s\n",e+1, NomeEspec[e], Mec_leve[e], Mec_medio[e]);
     }
 
     printf("\n");
 
-
+/*
     // DECLARANDO O AMBIENTE E O MODELO MATEMATICO
     IloEnv env;
 	  IloModel modelo;
@@ -198,7 +282,7 @@ int main(int argc, char *argv[])
             modelo.add(k[t1][t2]);
         }
     }
-    */
+
 
     IloNumVarMatrix x(env, F);
     for(int f = 0 ; f < F; f++)
@@ -353,7 +437,7 @@ int main(int argc, char *argv[])
     }
 
     printf("Funcao objetivo: %.2f\n", cplex.getObjValue());
-
+*/
     return 0;
 }
 

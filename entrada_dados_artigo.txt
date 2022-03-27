@@ -1,4 +1,4 @@
-﻿59 12
+59 14
 L.1.1  A LEVE   4   4   16  0   2   4   0.5 1.5 12  2   0   0   0   0   3.5 49.5  8 
 L.2.1  A LEVE   0.5 1   4   1.5 1   1   0   0.5 0.5 0.5 1.5 0   0   0   2   14    12
 L.2.2  B LEVE   0.5 1   4   1.5 1   1   0   0.5 0.5 0.5 1.5 0   0   0   2   14    3 
@@ -19,7 +19,7 @@ L.7.3  C LEVE   8   6   18  8   8   16  2   2   14  2   0   0   2   0   3   89  
 L.8.1  A LEVE   1   1   2   0   0.5 1   0   0.5 2   0   0   0   0   0   1   9     96
 L.8.2  B LEVE   1   1   4   0   1   2   0   0.5 4   0   0   0   0   0   2   15.5  25
 L.9.1  A LEVE   2   2   12  0   0   0   0   0   8   0   0   0   0   0   3   27    12
-L.9.2  B LEVE   4   4   24  0   3   1   0.5 1.5 14  2   1.5 0   0   1   4   60    3 
+L.9.2  B LEVE   4   4   24  0   3   1   0.5 1.5 14  2   1.5 0   0   1   4   60    3
 L.9.3  C LEVE   8   8   46  10  4   8   2   2   24  4   1.5 1   2   0.5 4   125   9 
 L.10.1 A LEVE   4   1.5 12  0   1   2   0.5 1   6.5 1.5 0   0   0   0   3   33    13
 L.10.2 B LEVE   4   1.5 24  0   1   2   0.5 1   6.5 1.5 0   0   0   0   3   45    4 
@@ -60,3 +60,16 @@ P.9.1  A PESADO 8   1   8   0   0   0   0   0   4   1.5 6   4.5 2   0   3   38  
 P.9.2  B PESADO 8   1   8   0   0   0   0   0   4   1.5 6   4.5 2   0   3   38    4 
 MECANICO P B M.4.1,M.4.2,M.4.3 B B B B B B B
 MECANICO P B B B P.1.1,P.1.2 B B B B B
+INSPETOR B P B M.2.1,M.2.2,M.2.3 B P.5.1,P.5.2 X B B B
+INSPETOR X X X P B P.5.1,P.5.2 B B B B
+MECANICO X B P B B B X B B B
+MECANICO X B P B B B B B B B
+INSPETOR X X B B X P B B B B
+INSPETOR B X B X B P X B B B
+MECANICO X X B B P B B B B B
+MECANICO X B B B P B B B B B
+MECANICO X B B B P B B B B B
+MECANICO X B B B P B X B B B
+OP.TRAT. B B B B B B B P P B
+OP.PINTU B B B B B B B B B P
+
