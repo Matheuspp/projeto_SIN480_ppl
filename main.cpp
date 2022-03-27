@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
     char** Pintura_esp; // por especialista
 
 
-    float* TotalHorasServico; // especialidade x componentes
+    float* TotalHorasDisponivel; // especialidade
 
     // Leitura do Arquivo
     FILE* fp;
@@ -242,7 +242,7 @@ int main(int argc, char *argv[])
 
     printf("\n");
 
-/*
+
     // DECLARANDO O AMBIENTE E O MODELO MATEMATICO
     IloEnv env;
 	  IloModel modelo;
@@ -282,23 +282,20 @@ int main(int argc, char *argv[])
             modelo.add(k[t1][t2]);
         }
     }
+*/
 
-
-    IloNumVarMatrix x(env, F);
-    for(int f = 0 ; f < F; f++)
+    IloNumVarArray x(env,C, 0, IloInfinity, ILOFLOAT); //  y >= 0
+    for(int c = 0 ; c < C; c++)
     {
-        x[f] = IloNumVarArray(env, C, 0, IloInfinity, ILOFLOAT);
+        x[c] = IloNumVarArray(env, C, 0, IloInfinity, ILOFLOAT);
     }
     // adicionar as variáveis no modelo
-    for(int f = 0 ; f < F; f++)
+    for(int c = 0 ; c < C; c++)
     {
-        for(int c = 0; c < C; c++)
-        {
             stringstream var;
-            var << "x["<< NomeFazenda[f] << "]["<< NomeCultura[c] << "]";
-            x[f][c].setName(var.str().c_str());
-            modelo.add(x[f][c]);
-        }
+            var << "x["<< NomeComponente[c] << "]";
+            x[c].setName(var.str().c_str());
+            modelo.add(x[c]);
     }
 
 
@@ -309,12 +306,9 @@ int main(int argc, char *argv[])
     IloExpr fo(env);
 
     //Somatório...
-    for(int f = 0; f < F; f++)
-    {
-      for(int c = 0; c < C; c++)
-      {
-        fo += Lucro[c]*x[f][c];
-      }
+    for(int c = 0; c < C; c++){
+        fo += HH_total[c]*x[c];
+
     }
 
 
@@ -327,24 +321,25 @@ int main(int argc, char *argv[])
     // declarando a restrição
     // IloRange parametros: ambiente, valor min, expressão, valor maximo
 
-    // Restrição associada a area da fazenda
-    for(int f = 0; f < F; f++) //para todo
-    {
-      IloExpr soma(env);
-      for( int c = 0; c < C; c++)
-      {
-        soma += x[f][c];
-      }
-      //declarar minha restrição
-      IloRange areaFaz(env, -IloInfinity, soma, Area[f]);
-      // dando um nome para a restrição
-      stringstream rest;
-      rest << " AreaFaz[" << NomeFazenda[f] << "]: ";
-      areaFaz.setName(rest.str().c_str());
-      //adicionar ao modelo
-      modelo.add(areaFaz);
+    TotalHorasDisponivel = E*1.617 // calcular o total de horas disponiveis
 
+    // Restrição associada a mao de obra
+
+    // para mecanico leve
+    IloExpr soma(env);
+    for(int c = 0; c < 26; c++) {
+        soma += x[c];
     }
+    //declarar minha restrição
+    IloRange areaFaz(env, -IloInfinity, soma, 2*1.617);
+    // dando um nome para a restrição
+    stringstream rest;
+    rest << "MLeve[" << NomeEspec[0] << "]: ";
+    MLeve.setName(rest.str().c_str());
+    //adicionar ao modelo
+    modelo.add(MLEVE);
+
+
 
     // associada a água disponivel nas Fazendas
 
@@ -437,7 +432,7 @@ int main(int argc, char *argv[])
     }
 
     printf("Funcao objetivo: %.2f\n", cplex.getObjValue());
-*/
+
     return 0;
 }
 
