@@ -241,14 +241,13 @@ int main(int argc, char *argv[])
     }
 
     printf("\n");
-
+    printf("passou aqui!!!");
 
     // DECLARANDO O AMBIENTE E O MODELO MATEMATICO
     IloEnv env;
 	  IloModel modelo;
     // iniciando o modelo
     modelo = IloModel(env);
-
 
 
     /*
@@ -285,10 +284,6 @@ int main(int argc, char *argv[])
 */
 
     IloNumVarArray x(env,C, 0, IloInfinity, ILOFLOAT); //  y >= 0
-    for(int c = 0 ; c < C; c++)
-    {
-        x[c] = IloNumVarArray(env, C, 0, IloInfinity, ILOFLOAT);
-    }
     // adicionar as variáveis no modelo
     for(int c = 0 ; c < C; c++)
     {
@@ -321,114 +316,133 @@ int main(int argc, char *argv[])
     // declarando a restrição
     // IloRange parametros: ambiente, valor min, expressão, valor maximo
 
-    TotalHorasDisponivel = E*1.617 // calcular o total de horas disponiveis
-
     // Restrição associada a mao de obra
 
+    string cel1("LEVE");
+    string cel2("MEDIO");
+    string cel3("PESADO");
+
+    string esp1("MECANICO");
+    string esp2("INSPETOR");
+    string esp3("OP.TRAT.");
+    string esp4("OP.PINTU");
+    string esp5("OP.ENSAIO");
+
+    int i = 0;
+
     // para mecanico leve
-    IloExpr soma(env);
-    for(int c = 0; c < 26; c++) {
-        soma += x[c];
+    IloExpr soma1(env);
+    while(NomeCelula[i] == cel1) {
+        soma1 += x[i];
+        i++;
     }
     //declarar minha restrição
-    IloRange areaFaz(env, -IloInfinity, soma, 2*1.617);
+    IloRange MLeve(env, -IloInfinity, soma1, 2*1.617);
     // dando um nome para a restrição
-    stringstream rest;
-    rest << "MLeve[" << NomeEspec[0] << "]: ";
-    MLeve.setName(rest.str().c_str());
+    stringstream rest1;
+    rest1 << "MLeve[" << esp1 << "]:";
+    MLeve.setName(rest1.str().c_str());
     //adicionar ao modelo
-    modelo.add(MLEVE);
+    modelo.add(MLeve);
 
-
-
-    // associada a água disponivel nas Fazendas
-
-    for(int f = 0; f < F; f++)
-    {
-       IloExpr soma(env);
-       for(int c = 0; c < C; c++)
-       {
-          soma+= ConsAgua[c]*x[f][c];
-       }
-        //declarar minha restrição
-       IloRange rest_consAgua(env, -IloInfinity , soma, Agua[f]);
-       //nome restrição
-       stringstream rest;
-       rest << "ConsAgua[" << NomeFazenda[f] << "]:";
-       rest_consAgua.setName(rest.str().c_str());
-       // adiciono ao modelo
-      modelo.add(rest_consAgua);
-
+    // para mecanico medio
+    IloExpr soma2(env);
+    while(NomeCelula[i] == cel2) {
+        soma2 += x[i];
+        i++;
     }
+    //declarar minha restrição
+    IloRange MMedio(env, -IloInfinity, soma2, 2*1.617);
+    // dando um nome para a restrição
+    stringstream rest2;
+    rest2 << "MMedio[" << esp1 << "]:";
+    MMedio.setName(rest2.str().c_str());
+    //adicionar ao modelo
+    modelo.add(MMedio);
 
-
-    // associada a área máxima plantada por cultura
-    for(int c = 0; c < C; c++)
-    {
-        IloExpr soma(env);
-        for(int f = 0; f < F; f++)
-        {
-          soma+= x[f][c];
-        }
-        // declarar minha restrição
-        IloRange rest_areaCultura(env, -IloInfinity, soma, AMax[c]);
-        //nome da restrição
-        stringstream rest;
-        rest << "AreaMaxCult[" << NomeCultura[c] << "]:";
-        rest_areaCultura.setName(rest.str().c_str());
-        //adicionar ao modelo
-        modelo.add(rest_areaCultura);
-
+    // para mecanico pesado
+    IloExpr soma3(env);
+    while(NomeCelula[i] == cel3) {
+        soma3 += x[i];
+        i++;
     }
+    //declarar minha restrição
+    IloRange MPesado(env, -IloInfinity, soma3, 4*1.617);
+    // dando um nome para a restrição
+    stringstream rest3;
+    rest3 << "MPesado[" << esp1 << "]:";
+    MPesado.setName(rest3.str().c_str());
+    //adicionar ao modelo
+    modelo.add(MPesado);
 
-    // restrição associada a proporção de area plantada
-    for(int f = 0; f < F; f++)
-    {
-      for(int g = 0; g < F; g++)
-      {
-          if( f != g)
-          {
-              IloExpr soma1(env);
-              IloExpr soma2(env);
+    //========================================================================================
+    i = 0;
 
-              for(int c = 0 ; c < C; c++)
-              {
-                  soma1+=x[f][c];
-                  soma2+=x[g][c];
-              }
-              //declarar minha restrição
-              IloRange rest_proporcao(env, 0, soma1/Area[f] - soma2/Area[g], 0);
-              stringstream rest;
-              rest << "Proporc[" << NomeFazenda[f] <<"]["<< NomeFazenda[g] <<"]:";
-              rest_proporcao.setName(rest.str().c_str());
-              //adicionar ao modelo
-              modelo.add(rest_proporcao);
-          }
-      }
+    // para inspetor leve
+    IloExpr soma4(env);
+    while(NomeCelula[i] == cel1) {
+        soma4 += x[i];
+        i++;
     }
+    //declarar minha restrição
+    IloRange ILeve(env, -IloInfinity, soma4, 1*1.617);
+    // dando um nome para a restrição
+    stringstream rest4;
+    rest4 << "ILeve[" << esp2 << "]:";
+    ILeve.setName(rest4.str().c_str());
+    //adicionar ao modelo
+    modelo.add(ILeve);
 
+    // para inspetor medio
+    IloExpr soma5(env);
+    while(NomeCelula[i] == cel2) {
+        soma5 += x[i];
+        i++;
+    }
+    //declarar minha restrição
+    IloRange IMedio(env, -IloInfinity, soma5, 1*1.617);
+    // dando um nome para a restrição
+    stringstream rest5;
+    rest5 << "IMedio[" << esp2 << "]:";
+    IMedio.setName(rest5.str().c_str());
+    //adicionar ao modelo
+    modelo.add(IMedio);
+
+    // para inspetor pesado
+    IloExpr soma6(env);
+    while(NomeCelula[i] == cel3) {
+        soma6 += x[i];
+        i++;
+    }
+    //declarar minha restrição
+    IloRange IPesado(env, -IloInfinity, soma6, 2*1.617);
+    // dando um nome para a restrição
+    stringstream rest6;
+    rest6 << "IPesado[" << esp2 << "]:";
+    IPesado.setName(rest6.str().c_str());
+    //adicionar ao modelo
+    modelo.add(IPesado);
 
     // RESOLVENDO O MODELO
 
     // Carregando o módulo do Cplex
     IloCplex cplex(modelo);
     // exportando o lp
-    cplex.exportModel("fazenda.lp");
+    cplex.exportModel("horas.lp");
     // Executando o modelo
     cplex.solve();
 
     // PEGAR OS VALORES DAS VARIÁVEIS
     //cplex.getValue(NOME_VAR)
     printf("\n ---------- Valor das variaveis -------------\n");
-    for(int f = 0; f < F; f++)
+    for(int c = 0; c < C; c++)
     {
       printf("********");
-      printf("%s \n", NomeFazenda[f]);
-      for(int c = 0; c < C; c++)
-      {
-        double valor = cplex.getValue(x[f][c]);
-        printf("%s: %.2f \n", NomeCultura[c], valor);
-      }
+      printf("%s \n", NomeComponente[c]);
+
+      double valor = cplex.getValue(x[c]);
+      printf("%.2f \n", valor);
+
     }
 
     printf("Funcao objetivo: %.2f\n", cplex.getObjValue());
