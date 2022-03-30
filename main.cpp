@@ -41,18 +41,9 @@ int main(int argc, char *argv[])
     float* Demanda; // por componente
 
     char** NomeEspec; // por especialista
-    char** Mec_leve; // por especialista
-    char** Mec_medio; // por especialista
-    char** Mec_pesado; // por especialista
-    char** Insp_leve; // por especialista
-    char** Insp_medio; // por especialista
-    char** Insp_pesado; // por especialista
-    char** End_esp; // por especialista
-    char** Limpeza_esp; // por especialista
-    char** Protecao_esp; // por especialista
-    char** Pintura_esp; // por especialista
-
-
+    char** CelulaAtuacao; // por especialista
+    int* QuantidadeEsp; // por componente
+    
     float* TotalHorasDisponivel; // especialidade
 
     // Leitura do Arquivo
@@ -114,66 +105,16 @@ int main(int argc, char *argv[])
       NomeEspec[e] = new char[51];
     }
 
-    Mec_leve = new char*[E];
+    CelulaAtuacao = new char*[E];
     for(int e = 0 ; e < E; e++)
     {
-      Mec_leve[e] = new char[51];
+      CelulaAtuacao[e] = new char[51];
     }
 
-    Insp_leve = new char*[E];
-    for(int e = 0 ; e < E; e++)
-    {
-      NomeEspec[e] = new char[51];
-    }
+    QuantidadeEsp = new int[E];
+   
 
-    Mec_medio= new char*[E];
-    for(int e = 0 ; e < E; e++)
-    {
-      Mec_medio[e] = new char[51];
-    }
-
-    Insp_medio= new char*[E];
-    for(int e = 0 ; e < E; e++)
-    {
-      Insp_medio[e] = new char[51];
-    }
-
-    Mec_pesado = new char*[E];
-    for(int e = 0 ; e < E; e++)
-    {
-      Mec_pesado[e] = new char[51];
-    }
-
-    Insp_pesado= new char*[E];
-    for(int e = 0 ; e < E; e++)
-    {
-      Insp_pesado[e] = new char[51];
-    }
-
-    End_esp= new char*[E];
-    for(int e = 0 ; e < E; e++)
-    {
-      End_esp[e] = new char[51];
-    }
-
-    Limpeza_esp = new char*[E];
-    for(int e = 0 ; e < E; e++)
-    {
-      Limpeza_esp[e] = new char[51];
-    }
-
-    Protecao_esp = new char*[E];
-    for(int e = 0 ; e < E; e++)
-    {
-      Protecao_esp[e] = new char[51];
-    }
-
-    Pintura_esp = new char*[E];
-    for(int e = 0 ; e < E; e++)
-    {
-      Pintura_esp[e] = new char[51];
-    }
-
+    
 
     // Após a declaração dos tamanhos dos dados de entrada, realizando a leitura
     // por componente
@@ -207,18 +148,9 @@ int main(int argc, char *argv[])
     for(int e = 0; e < E; e++)
     {
         fscanf(fp, "%s", NomeEspec[e]);
-        fscanf(fp, "%s", Mec_leve[e]);
-        fscanf(fp, "%s", Insp_leve[e]);
-        fscanf(fp, "%s", Mec_medio[e]);
-        fscanf(fp, "%s", Insp_medio[e]);
-        fscanf(fp, "%s", Mec_pesado[e]);
-        fscanf(fp, "%s", Insp_pesado[e]);
-        fscanf(fp, "%s", Mec_leve[e]);
-        fscanf(fp, "%s", Insp_leve[e]);
-        fscanf(fp, "%s", End_esp[e]);
-        fscanf(fp, "%s", Limpeza_esp[e]);
-        fscanf(fp, "%s", Protecao_esp[e]);
-        fscanf(fp, "%s", Pintura_esp[e]);
+        fscanf(fp, "%s", CelulaAtuacao[e]);
+        fscanf(fp, "%d", &QuantidadeEsp[e]);
+
     }
 
     // Impressão para Verificação dos dados
@@ -237,11 +169,10 @@ int main(int argc, char *argv[])
     printf("Especialistas: \n");
     for(int e = 0; e < E; e++)
     {
-      printf("T%d \t %s \t %s \t %s\n",e+1, NomeEspec[e], Mec_leve[e], Mec_medio[e]);
+      printf("T%d \t %s \t %s \t %d\n",e+1,NomeEspec[e], CelulaAtuacao[e], QuantidadeEsp[e]);
     }
 
     printf("\n");
-    printf("passou aqui!!!");
 
     // DECLARANDO O AMBIENTE E O MODELO MATEMATICO
     IloEnv env;
@@ -283,15 +214,20 @@ int main(int argc, char *argv[])
     }
 */
 
-    IloNumVarArray x(env,C, 0, IloInfinity, ILOFLOAT); //  y >= 0
     // adicionar as variáveis no modelo
-    for(int c = 0 ; c < C; c++)
+    IloNumVarMatrix x(env, C);
+    for(int c = 0; c < C; c++)
     {
+        for(int e = 0; e < E; e++)
+        {
+          printf("%s %s\n", NomeComponente[c], NomeEspec[e]);
             stringstream var;
-            var << "x["<< NomeComponente[c] << "]";
-            x[c].setName(var.str().c_str());
-            modelo.add(x[c]);
+            var << "x["<< NomeComponente[c] << "]["<< NomeEspec[e] << "]";
+            x[c][e].setName(var.str().c_str());
+            modelo.add(x[c][e]);
+        }
     }
+
 
 
 
@@ -301,10 +237,14 @@ int main(int argc, char *argv[])
     IloExpr fo(env);
 
     //Somatório...
-    for(int c = 0; c < C; c++){
-        fo += HH_total[c]*x[c];
-
+    for(int c = 0; c < C; c++)
+    {
+      for(int e = 0; e < E; e++)
+      {
+        fo += HH_total[c]*x[c][e];
+      }
     }
+
 
 
     //IloMinimize e IloMaximize
@@ -329,15 +269,18 @@ int main(int argc, char *argv[])
     string esp5("OP.ENSAIO");
 
     int i = 0;
+    float SomaAux;
 
     // para mecanico leve
     IloExpr soma1(env);
     while(NomeCelula[i] == cel1) {
-        soma1 += x[i];
+        SomaAux = (Desmontagem[i]+Vdi[i]+Conf_pecas[i]+Montagem[i]+Montagem_final[i]+Finalizacao[i]); 
+        soma1 += x[i][0]*SomaAux;
         i++;
     }
+
     //declarar minha restrição
-    IloRange MLeve(env, -IloInfinity, soma1, 2*1.617);
+    IloRange MLeve(env, -IloInfinity, soma1, QuantidadeEsp[0]*1.617);
     // dando um nome para a restrição
     stringstream rest1;
     rest1 << "MLeve[" << esp1 << "]:";
@@ -347,12 +290,14 @@ int main(int argc, char *argv[])
 
     // para mecanico medio
     IloExpr soma2(env);
+    SomaAux = 0.0;
     while(NomeCelula[i] == cel2) {
-        soma2 += x[i];
+        SomaAux = (Desmontagem[i]+Vdi[i]+Conf_pecas[i]+Montagem[i]+Montagem_final[i]+Finalizacao[i]);
+        soma2 +=  x[i][1]*SomaAux;
         i++;
     }
     //declarar minha restrição
-    IloRange MMedio(env, -IloInfinity, soma2, 2*1.617);
+    IloRange MMedio(env, -IloInfinity, soma2, QuantidadeEsp[1]*1.617);
     // dando um nome para a restrição
     stringstream rest2;
     rest2 << "MMedio[" << esp1 << "]:";
@@ -362,12 +307,18 @@ int main(int argc, char *argv[])
 
     // para mecanico pesado
     IloExpr soma3(env);
+    SomaAux = 0.0;
     while(NomeCelula[i] == cel3) {
-        soma3 += x[i];
+        printf("%d\n", i);
+        if(i == 58){
+          break;
+        }
+        SomaAux = (Desmontagem[i]+Vdi[i]+Conf_pecas[i]+Montagem[i]+Montagem_final[i]+Finalizacao[i]);
+        soma3 += x[i][2]*SomaAux;
         i++;
     }
     //declarar minha restrição
-    IloRange MPesado(env, -IloInfinity, soma3, 4*1.617);
+    IloRange MPesado(env, -IloInfinity, soma3, QuantidadeEsp[2]*1.617);
     // dando um nome para a restrição
     stringstream rest3;
     rest3 << "MPesado[" << esp1 << "]:";
@@ -377,15 +328,17 @@ int main(int argc, char *argv[])
 
     //========================================================================================
     i = 0;
+    SomaAux = 0.0;
 
     // para inspetor leve
     IloExpr soma4(env);
     while(NomeCelula[i] == cel1) {
-        soma4 += x[i];
+        SomaAux = (Lib_montagem[i]+InspecaoFI[i]+Ensaio[i]+Cf[i]);
+        soma4 += x[i][3]*SomaAux;
         i++;
     }
     //declarar minha restrição
-    IloRange ILeve(env, -IloInfinity, soma4, 1*1.617);
+    IloRange ILeve(env, -IloInfinity, soma4, QuantidadeEsp[3]*1.617);
     // dando um nome para a restrição
     stringstream rest4;
     rest4 << "ILeve[" << esp2 << "]:";
@@ -395,12 +348,14 @@ int main(int argc, char *argv[])
 
     // para inspetor medio
     IloExpr soma5(env);
+    SomaAux = 0.0;
     while(NomeCelula[i] == cel2) {
-        soma5 += x[i];
+        SomaAux = (Lib_montagem[i]+InspecaoFI[i]+Ensaio[i]+Cf[i]);
+        soma5 += x[i][4]*SomaAux;
         i++;
     }
     //declarar minha restrição
-    IloRange IMedio(env, -IloInfinity, soma5, 1*1.617);
+    IloRange IMedio(env, -IloInfinity, soma5, QuantidadeEsp[4]*1.617);
     // dando um nome para a restrição
     stringstream rest5;
     rest5 << "IMedio[" << esp2 << "]:";
@@ -410,12 +365,17 @@ int main(int argc, char *argv[])
 
     // para inspetor pesado
     IloExpr soma6(env);
+    SomaAux = 0.0;
     while(NomeCelula[i] == cel3) {
-        soma6 += x[i];
+      if(i == 58){
+        break;
+      }
+        SomaAux = (Lib_montagem[i]+InspecaoFI[i]+Ensaio[i]+Cf[i]);
+        soma6 += x[i][5]*SomaAux;
         i++;
     }
     //declarar minha restrição
-    IloRange IPesado(env, -IloInfinity, soma6, 2*1.617);
+    IloRange IPesado(env, -IloInfinity, soma6, QuantidadeEsp[5]*1.617);
     // dando um nome para a restrição
     stringstream rest6;
     rest6 << "IPesado[" << esp2 << "]:";
@@ -423,12 +383,65 @@ int main(int argc, char *argv[])
     //adicionar ao modelo
     modelo.add(IPesado);
 
+    //===================================================================
+
+    // para Operador de ensaio
+    IloExpr soma7(env);
+    SomaAux = 0.0;
+    for(int i = 0;i < C;i++) {
+        SomaAux = (End[i]);
+        soma7 += x[i][6]*SomaAux;
+        i++;
+    }
+    //declarar minha restrição
+    IloRange OpEnsaio(env, -IloInfinity, soma7, QuantidadeEsp[6]*1.617);
+    // dando um nome para a restrição
+    stringstream rest7;
+    rest7 << "OpEnsaio[" << esp5 << "]:";
+    OpEnsaio.setName(rest7.str().c_str());
+    //adicionar ao modelo
+    modelo.add(OpEnsaio);
+
+      // para Operador de Tratamento
+    IloExpr soma8(env);
+    SomaAux = 0.0;
+    for(int i = 0;i < C;i++) {
+        SomaAux = (Limpeza[i]+Protecao[i]);
+        soma8 += x[i][7]*SomaAux;
+        i++;
+    }
+    //declarar minha restrição
+    IloRange OpTratamento(env, -IloInfinity, soma8, QuantidadeEsp[7]*1.617);
+    // dando um nome para a restrição
+    stringstream rest8;
+    rest8 << "OpEnsaio[" << esp3 << "]:";
+    OpTratamento.setName(rest8.str().c_str());
+    //adicionar ao modelo
+    modelo.add(OpTratamento);
+
+    // para Pintor
+    IloExpr soma9(env);
+    SomaAux = 0.0;
+    for(int i = 0;i < C;i++) {
+        SomaAux = (Pintura[i]+Pintura_final[i]);
+        soma9 += x[i][8]*SomaAux;
+        i++;
+    }
+    //declarar minha restrição
+    IloRange Pintor(env, -IloInfinity, soma9, QuantidadeEsp[8]*1.617);
+    // dando um nome para a restrição
+    stringstream rest9;
+    rest9 << "Pintor[" << esp4 << "]:";
+    Pintor.setName(rest9.str().c_str());
+    //adicionar ao modelo
+    modelo.add(Pintor);
+
     // RESOLVENDO O MODELO
 
     // Carregando o módulo do Cplex
     IloCplex cplex(modelo);
     // exportando o lp
-    cplex.exportModel("horas.lp");
+    cplex.exportModel("horasServico.lp");
     // Executando o modelo
     cplex.solve();
 
@@ -440,13 +453,16 @@ int main(int argc, char *argv[])
       printf("********");
       printf("%s \n", NomeComponente[c]);
 
-      double valor = cplex.getValue(x[c]);
-      printf("%.2f \n", valor);
+      for(int e = 0; e < E; e++)
+      {
+        double valor = cplex.getValue(x[c][e]);
+        printf("%s: %.2f \n", NomeEspec[e], valor);
+      }
 
     }
 
     printf("Funcao objetivo: %.2f\n", cplex.getObjValue());
-
+*/
     return 0;
 }
 
