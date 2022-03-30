@@ -216,18 +216,21 @@ int main(int argc, char *argv[])
 
     // adicionar as variáveis no modelo
     IloNumVarMatrix x(env, C);
+    for(int c = 0 ; c < C; c++)
+    {
+        x[c] = IloNumVarArray(env, E, 0, IloInfinity, ILOFLOAT);
+    }
+
     for(int c = 0; c < C; c++)
     {
         for(int e = 0; e < E; e++)
         {
-          printf("%s %s\n", NomeComponente[c], NomeEspec[e]);
             stringstream var;
-            var << "x["<< NomeComponente[c] << "]["<< NomeEspec[e] << "]";
+            var << "x["<< NomeComponente[c] << "]["<< NomeEspec[e] << "]:";
             x[c][e].setName(var.str().c_str());
             modelo.add(x[c][e]);
         }
     }
-
 
 
 
@@ -309,7 +312,6 @@ int main(int argc, char *argv[])
     IloExpr soma3(env);
     SomaAux = 0.0;
     while(NomeCelula[i] == cel3) {
-        printf("%d\n", i);
         if(i == 58){
           break;
         }
@@ -435,6 +437,8 @@ int main(int argc, char *argv[])
     Pintor.setName(rest9.str().c_str());
     //adicionar ao modelo
     modelo.add(Pintor);
+//===========================================================================
+
 
     // RESOLVENDO O MODELO
 
@@ -462,7 +466,7 @@ int main(int argc, char *argv[])
     }
 
     printf("Funcao objetivo: %.2f\n", cplex.getObjValue());
-*/
+
     return 0;
 }
 
