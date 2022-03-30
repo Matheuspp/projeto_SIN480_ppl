@@ -18,6 +18,17 @@ int main(int argc, char *argv[])
     int C; // conjunto de componentes
     int E; // conjunto de especialistas
 
+    // utils
+    string cel1("LEVE");
+    string cel2("MEDIO");
+    string cel3("PESADO");
+
+    string esp1("MECANICO");
+    string esp2("INSPETOR");
+    string esp3("OP.TRAT.");
+    string esp4("OP.PINTU");
+    string esp5("OP.ENSAIO");
+
     // Dados de entrada dependentes dos conjuntos
     char** NomeComponente; // por componente
     char** NomeCelula; // por componente
@@ -213,24 +224,17 @@ int main(int argc, char *argv[])
         }
     }
 */
+     IloNumVarArray x(env,C, 0, IloInfinity, ILOFLOAT); //  y >= 0
 
-    // adicionar as variáveis no modelo
-    IloNumVarMatrix x(env, C);
-    for(int c = 0 ; c < C; c++)
-    {
-        x[c] = IloNumVarArray(env, E, 0, IloInfinity, ILOFLOAT);
-    }
-
+    // adicionar as variáveis ao modelo
     for(int c = 0; c < C; c++)
     {
-        for(int e = 0; e < E; e++)
-        {
-            stringstream var;
-            var << "x["<< NomeComponente[c] << "]["<< NomeEspec[e] << "]:";
-            x[c][e].setName(var.str().c_str());
-            modelo.add(x[c][e]);
-        }
+        stringstream var;
+        var << "x[" << NomeComponente[c] << "]"; // var << "y[0]"
+        x[c].setName(var.str().c_str());
+        modelo.add(x[c]);
     }
+    
 
 
 
@@ -242,10 +246,9 @@ int main(int argc, char *argv[])
     //Somatório...
     for(int c = 0; c < C; c++)
     {
-      for(int e = 0; e < E; e++)
-      {
-        fo += HH_total[c]*x[c][e];
-      }
+  
+      fo += HH_total[c]*x[c];
+      
     }
 
 
@@ -261,29 +264,24 @@ int main(int argc, char *argv[])
 
     // Restrição associada a mao de obra
 
-    string cel1("LEVE");
-    string cel2("MEDIO");
-    string cel3("PESADO");
-
-    string esp1("MECANICO");
-    string esp2("INSPETOR");
-    string esp3("OP.TRAT.");
-    string esp4("OP.PINTU");
-    string esp5("OP.ENSAIO");
 
     int i = 0;
     float SomaAux;
+    float SomaAux2;
+    int NumFunc = 0;
 
-    // para mecanico leve
+    // para leve
     IloExpr soma1(env);
     while(NomeCelula[i] == cel1) {
         SomaAux = (Desmontagem[i]+Vdi[i]+Conf_pecas[i]+Montagem[i]+Montagem_final[i]+Finalizacao[i]); 
-        soma1 += x[i][0]*SomaAux;
+        SomaAux2 = (Lib_montagem[i]+InspecaoFI[i]+Ensaio[i]+Cf[i]);
+        soma1 += x[i]*(SomaAux+SomaAux2);
         i++;
     }
 
     //declarar minha restrição
-    IloRange MLeve(env, -IloInfinity, soma1, QuantidadeEsp[0]*1.617);
+    NumFunc = QuantidadeEsp[0]+QuantidadeEsp[1];
+    IloRange MLeve(env, -IloInfinity, soma1, NumFunc*1.617);
     // dando um nome para a restrição
     stringstream rest1;
     rest1 << "MLeve[" << esp1 << "]:";
@@ -291,16 +289,20 @@ int main(int argc, char *argv[])
     //adicionar ao modelo
     modelo.add(MLeve);
 
-    // para mecanico medio
+    // para  medio
     IloExpr soma2(env);
     SomaAux = 0.0;
+    SomaAux2 = 0.0;
     while(NomeCelula[i] == cel2) {
         SomaAux = (Desmontagem[i]+Vdi[i]+Conf_pecas[i]+Montagem[i]+Montagem_final[i]+Finalizacao[i]);
-        soma2 +=  x[i][1]*SomaAux;
+        SomaAux2 = (Lib_montagem[i]+InspecaoFI[i]+Ensaio[i]+Cf[i]);
+
+        soma2 +=  x[i]*(SomaAux+SomaAux2);
         i++;
     }
     //declarar minha restrição
-    IloRange MMedio(env, -IloInfinity, soma2, QuantidadeEsp[1]*1.617);
+    NumFunc = QuantidadeEsp[2]+QuantidadeEsp[3];
+    IloRange MMedio(env, -IloInfinity, soma2, NumFunc*1.617);
     // dando um nome para a restrição
     stringstream rest2;
     rest2 << "MMedio[" << esp1 << "]:";
@@ -308,19 +310,22 @@ int main(int argc, char *argv[])
     //adicionar ao modelo
     modelo.add(MMedio);
 
-    // para mecanico pesado
+    // para  pesado
     IloExpr soma3(env);
     SomaAux = 0.0;
+    SomaAux2 = 0.0;
     while(NomeCelula[i] == cel3) {
         if(i == 58){
           break;
         }
         SomaAux = (Desmontagem[i]+Vdi[i]+Conf_pecas[i]+Montagem[i]+Montagem_final[i]+Finalizacao[i]);
-        soma3 += x[i][2]*SomaAux;
+        SomaAux2 = (Lib_montagem[i]+InspecaoFI[i]+Ensaio[i]+Cf[i]);
+        soma3 += x[i]*(SomaAux+SomaAux2);
         i++;
     }
     //declarar minha restrição
-    IloRange MPesado(env, -IloInfinity, soma3, QuantidadeEsp[2]*1.617);
+    NumFunc = QuantidadeEsp[3]+QuantidadeEsp[4];
+    IloRange MPesado(env, -IloInfinity, soma3, NumFunc*1.617);
     // dando um nome para a restrição
     stringstream rest3;
     rest3 << "MPesado[" << esp1 << "]:";
@@ -328,62 +333,7 @@ int main(int argc, char *argv[])
     //adicionar ao modelo
     modelo.add(MPesado);
 
-    //========================================================================================
-    i = 0;
-    SomaAux = 0.0;
 
-    // para inspetor leve
-    IloExpr soma4(env);
-    while(NomeCelula[i] == cel1) {
-        SomaAux = (Lib_montagem[i]+InspecaoFI[i]+Ensaio[i]+Cf[i]);
-        soma4 += x[i][3]*SomaAux;
-        i++;
-    }
-    //declarar minha restrição
-    IloRange ILeve(env, -IloInfinity, soma4, QuantidadeEsp[3]*1.617);
-    // dando um nome para a restrição
-    stringstream rest4;
-    rest4 << "ILeve[" << esp2 << "]:";
-    ILeve.setName(rest4.str().c_str());
-    //adicionar ao modelo
-    modelo.add(ILeve);
-
-    // para inspetor medio
-    IloExpr soma5(env);
-    SomaAux = 0.0;
-    while(NomeCelula[i] == cel2) {
-        SomaAux = (Lib_montagem[i]+InspecaoFI[i]+Ensaio[i]+Cf[i]);
-        soma5 += x[i][4]*SomaAux;
-        i++;
-    }
-    //declarar minha restrição
-    IloRange IMedio(env, -IloInfinity, soma5, QuantidadeEsp[4]*1.617);
-    // dando um nome para a restrição
-    stringstream rest5;
-    rest5 << "IMedio[" << esp2 << "]:";
-    IMedio.setName(rest5.str().c_str());
-    //adicionar ao modelo
-    modelo.add(IMedio);
-
-    // para inspetor pesado
-    IloExpr soma6(env);
-    SomaAux = 0.0;
-    while(NomeCelula[i] == cel3) {
-      if(i == 58){
-        break;
-      }
-        SomaAux = (Lib_montagem[i]+InspecaoFI[i]+Ensaio[i]+Cf[i]);
-        soma6 += x[i][5]*SomaAux;
-        i++;
-    }
-    //declarar minha restrição
-    IloRange IPesado(env, -IloInfinity, soma6, QuantidadeEsp[5]*1.617);
-    // dando um nome para a restrição
-    stringstream rest6;
-    rest6 << "IPesado[" << esp2 << "]:";
-    IPesado.setName(rest6.str().c_str());
-    //adicionar ao modelo
-    modelo.add(IPesado);
 
     //===================================================================
 
@@ -392,7 +342,7 @@ int main(int argc, char *argv[])
     SomaAux = 0.0;
     for(int i = 0;i < C;i++) {
         SomaAux = (End[i]);
-        soma7 += x[i][6]*SomaAux;
+        soma7 += x[i]*SomaAux;
         i++;
     }
     //declarar minha restrição
@@ -409,7 +359,7 @@ int main(int argc, char *argv[])
     SomaAux = 0.0;
     for(int i = 0;i < C;i++) {
         SomaAux = (Limpeza[i]+Protecao[i]);
-        soma8 += x[i][7]*SomaAux;
+        soma8 += x[i]*SomaAux;
         i++;
     }
     //declarar minha restrição
@@ -426,7 +376,7 @@ int main(int argc, char *argv[])
     SomaAux = 0.0;
     for(int i = 0;i < C;i++) {
         SomaAux = (Pintura[i]+Pintura_final[i]);
-        soma9 += x[i][8]*SomaAux;
+        soma9 += x[i]*SomaAux;
         i++;
     }
     //declarar minha restrição
@@ -455,13 +405,9 @@ int main(int argc, char *argv[])
     for(int c = 0; c < C; c++)
     {
       printf("********");
-      printf("%s \n", NomeComponente[c]);
-
-      for(int e = 0; e < E; e++)
-      {
-        double valor = cplex.getValue(x[c][e]);
-        printf("%s: %.2f \n", NomeEspec[e], valor);
-      }
+      printf("%s \n", NomeComponente[c]);    
+      double valor = cplex.getValue(x[c]);
+      printf("%.2f \n", valor);
 
     }
 
