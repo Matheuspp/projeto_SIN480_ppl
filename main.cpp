@@ -266,21 +266,21 @@ int main(int argc, char *argv[])
 
 
     int i = 0;
-    float SomaAux;
-    float SomaAux2;
+    float SomaAux = 0.0;
+    float SomaAux2 = 0.0;
     int NumFunc = 0;
 
-    // para leve
-    IloExpr soma1(env);
+
+    // para mecanico leve    
     while(NomeCelula[i] == cel1) {
+        IloExpr soma1(env);
         SomaAux = (Desmontagem[i]+Vdi[i]+Conf_pecas[i]+Montagem[i]+Montagem_final[i]+Finalizacao[i]); 
-        SomaAux2 = (Lib_montagem[i]+InspecaoFI[i]+Ensaio[i]+Cf[i]);
-        soma1 += x[i]*(SomaAux+SomaAux2);
+        soma1 += x[i]*(SomaAux);
         i++;
-    }
+    
 
     //declarar minha restrição
-    NumFunc = QuantidadeEsp[0]+QuantidadeEsp[1];
+    NumFunc = QuantidadeEsp[0];
     IloRange MLeve(env, -IloInfinity, soma1, NumFunc*1.617);
     // dando um nome para a restrição
     stringstream rest1;
@@ -288,105 +288,165 @@ int main(int argc, char *argv[])
     MLeve.setName(rest1.str().c_str());
     //adicionar ao modelo
     modelo.add(MLeve);
-
-    // para  medio
-    IloExpr soma2(env);
+}
+    // para mecanico medio
     SomaAux = 0.0;
-    SomaAux2 = 0.0;
     while(NomeCelula[i] == cel2) {
+        IloExpr soma1(env);
         SomaAux = (Desmontagem[i]+Vdi[i]+Conf_pecas[i]+Montagem[i]+Montagem_final[i]+Finalizacao[i]);
-        SomaAux2 = (Lib_montagem[i]+InspecaoFI[i]+Ensaio[i]+Cf[i]);
 
-        soma2 +=  x[i]*(SomaAux+SomaAux2);
+        soma1 +=  x[i]*(SomaAux);
         i++;
-    }
+    
     //declarar minha restrição
-    NumFunc = QuantidadeEsp[2]+QuantidadeEsp[3];
-    IloRange MMedio(env, -IloInfinity, soma2, NumFunc*1.617);
+    NumFunc = QuantidadeEsp[1];
+    IloRange MMedio(env, -IloInfinity, soma1, NumFunc*1.617);
     // dando um nome para a restrição
     stringstream rest2;
     rest2 << "MMedio[" << esp1 << "]:";
     MMedio.setName(rest2.str().c_str());
     //adicionar ao modelo
     modelo.add(MMedio);
-
-    // para  pesado
-    IloExpr soma3(env);
+}
+    // para mecanico pesado
     SomaAux = 0.0;
-    SomaAux2 = 0.0;
     while(NomeCelula[i] == cel3) {
-        if(i == 58){
+        IloExpr soma1(env);
+        if(i == (C-1)){
           break;
         }
         SomaAux = (Desmontagem[i]+Vdi[i]+Conf_pecas[i]+Montagem[i]+Montagem_final[i]+Finalizacao[i]);
-        SomaAux2 = (Lib_montagem[i]+InspecaoFI[i]+Ensaio[i]+Cf[i]);
-        soma3 += x[i]*(SomaAux+SomaAux2);
+        soma1 += x[i]*(SomaAux);
         i++;
-    }
+    
     //declarar minha restrição
-    NumFunc = QuantidadeEsp[3]+QuantidadeEsp[4];
-    IloRange MPesado(env, -IloInfinity, soma3, NumFunc*1.617);
+    NumFunc = QuantidadeEsp[2];
+    IloRange MPesado(env, -IloInfinity, soma1, NumFunc*1.617);
     // dando um nome para a restrição
     stringstream rest3;
     rest3 << "MPesado[" << esp1 << "]:";
     MPesado.setName(rest3.str().c_str());
     //adicionar ao modelo
     modelo.add(MPesado);
+}
 
+ //==================================================================
+  i = 0;
+  // para inspetor leve    
+    while(NomeCelula[i] == cel1) {
+        IloExpr soma1(env);
+        SomaAux2 = (Lib_montagem[i]+InspecaoFI[i]+Ensaio[i]+Cf[i]);
+        soma1 += x[i]*(SomaAux2);
+        i++;
+    
+
+    //declarar minha restrição
+    NumFunc = QuantidadeEsp[3];
+    IloRange ILeve(env, -IloInfinity, soma1, NumFunc*1.617);
+    // dando um nome para a restrição
+    stringstream rest4;
+    rest4 << "ILeve[" << esp2 << "]:";
+    ILeve.setName(rest4.str().c_str());
+    //adicionar ao modelo
+    modelo.add(ILeve);
+}
+    // para  inspetor medio
+    SomaAux2 = 0.0;
+    while(NomeCelula[i] == cel2) {
+        IloExpr soma1(env);
+        SomaAux2 = (Lib_montagem[i]+InspecaoFI[i]+Ensaio[i]+Cf[i]);
+
+        soma1 +=  x[i]*(SomaAux2);
+        i++;
+    
+    //declarar minha restrição
+    NumFunc = QuantidadeEsp[4];
+    IloRange IMedio(env, -IloInfinity, soma1, NumFunc*1.617);
+    // dando um nome para a restrição
+    stringstream rest5;
+    rest5 << "IMedio[" << esp2 << "]:";
+    IMedio.setName(rest5.str().c_str());
+    //adicionar ao modelo
+    modelo.add(IMedio);
+}
+    // para inspetor pesado
+    SomaAux2 = 0.0;
+    while(NomeCelula[i] == cel3) {
+        IloExpr soma1(env);
+        if(i == (C-1)){
+          break;
+        }
+        SomaAux2 = (Lib_montagem[i]+InspecaoFI[i]+Ensaio[i]+Cf[i]);
+        soma1 += x[i]*(SomaAux2);
+        i++;
+    
+    //declarar minha restrição
+    NumFunc = QuantidadeEsp[5];
+    IloRange IPesado(env, -IloInfinity, soma1, NumFunc*1.617);
+    // dando um nome para a restrição
+    stringstream rest6;
+    rest6 << "IPesado[" << esp2 << "]:";
+    IPesado.setName(rest6.str().c_str());
+    //adicionar ao modelo
+    modelo.add(IPesado);
+}
 
 
     //===================================================================
 
     // para Operador de ensaio
-    IloExpr soma7(env);
     SomaAux = 0.0;
     for(int i = 0;i < C;i++) {
+        IloExpr soma1(env);
         SomaAux = (End[i]);
-        soma7 += x[i]*SomaAux;
+        soma1 += x[i]*SomaAux;
         i++;
-    }
+    
     //declarar minha restrição
-    IloRange OpEnsaio(env, -IloInfinity, soma7, QuantidadeEsp[6]*1.617);
+    IloRange OpEnsaio(env, -IloInfinity, soma1, QuantidadeEsp[6]*1.617);
     // dando um nome para a restrição
     stringstream rest7;
     rest7 << "OpEnsaio[" << esp5 << "]:";
     OpEnsaio.setName(rest7.str().c_str());
     //adicionar ao modelo
     modelo.add(OpEnsaio);
-
+}
       // para Operador de Tratamento
-    IloExpr soma8(env);
     SomaAux = 0.0;
     for(int i = 0;i < C;i++) {
+        IloExpr soma1(env);
         SomaAux = (Limpeza[i]+Protecao[i]);
-        soma8 += x[i]*SomaAux;
+        soma1 += x[i]*SomaAux;
         i++;
-    }
+   
     //declarar minha restrição
-    IloRange OpTratamento(env, -IloInfinity, soma8, QuantidadeEsp[7]*1.617);
+    IloRange OpTratamento(env, -IloInfinity, soma1, QuantidadeEsp[7]*1.617);
     // dando um nome para a restrição
     stringstream rest8;
     rest8 << "OpEnsaio[" << esp3 << "]:";
     OpTratamento.setName(rest8.str().c_str());
     //adicionar ao modelo
     modelo.add(OpTratamento);
-
+}
     // para Pintor
-    IloExpr soma9(env);
+
     SomaAux = 0.0;
     for(int i = 0;i < C;i++) {
+        IloExpr soma1(env);
         SomaAux = (Pintura[i]+Pintura_final[i]);
-        soma9 += x[i]*SomaAux;
+        soma1 += x[i]*SomaAux;
         i++;
-    }
+
     //declarar minha restrição
-    IloRange Pintor(env, -IloInfinity, soma9, QuantidadeEsp[8]*1.617);
+    IloRange Pintor(env, -IloInfinity, soma1, QuantidadeEsp[8]*1.617);
     // dando um nome para a restrição
     stringstream rest9;
     rest9 << "Pintor[" << esp4 << "]:";
     Pintor.setName(rest9.str().c_str());
     //adicionar ao modelo
     modelo.add(Pintor);
+
+}
 //===========================================================================
 
 
@@ -415,15 +475,4 @@ int main(int argc, char *argv[])
 
     return 0;
 }
-
-
-
-
-
-
-
-
-
-
-
 
